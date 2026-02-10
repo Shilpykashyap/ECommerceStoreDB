@@ -15,30 +15,54 @@ namespace ECommerceStoreDB.Controller
 			_customerRepository = customerRepository;
 		}
 
+
+
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Customer>> GetCustomerById(int id)
+		public async Task<ActionResult<CustomerResponseDto>> GetCustomerById(int id)
 		{
 			var customer = await _customerRepository.GetCustomerByIdAsync(id);
 			if(customer == null)
 			{
 				return NotFound();
 			}
-			return Ok(customer);
+			
+			var response = new CustomerResponseDto
+			{
+				CustomerId = customer.CustomerId,
+				Name = customer.Name,
+				Email = customer.Email,
+				Role = customer.Role,
+				Phone = customer.Phone,
+				CreatedAt = customer.CreatedAt
+			};
+
+			return Ok(response);
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer()
+		public async Task<ActionResult<IEnumerable<CustomerResponseDto>>> GetCustomer()
 		{
-			var customer = await _customerRepository.GetAllCustomerAsync();
-			if(customer == null)
+			var customers = await _customerRepository.GetAllCustomerAsync();
+			if(customers == null)
 			{
 				return NotFound();
 			}
-			return Ok(customer);
+
+			var response = customers.Select(c => new CustomerResponseDto
+			{
+				CustomerId = c.CustomerId,
+				Name = c.Name,
+				Email = c.Email,
+				Role = c.Role,
+				Phone = c.Phone,
+				CreatedAt = c.CreatedAt
+			});
+
+			return Ok(response);
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Customer>> InsertCustomer(CreateCustomerDto customerDto)
+		public async Task<ActionResult<CustomerResponseDto>> InsertCustomer(CreateCustomerDto customerDto)
 		{
 			if (customerDto == null)
 			{
@@ -55,15 +79,26 @@ namespace ECommerceStoreDB.Controller
 			};
 
 			var createdCustomer = await _customerRepository.InsertCustomerAsync(customer);
-			return CreatedAtAction(nameof(GetCustomerById), new { id = createdCustomer.CustomerId }, createdCustomer);
+			
+			var response = new CustomerResponseDto
+			{
+				CustomerId = createdCustomer.CustomerId,
+				Name = createdCustomer.Name,
+				Email = createdCustomer.Email,
+				Role = createdCustomer.Role,
+				Phone = createdCustomer.Phone,
+				CreatedAt = createdCustomer.CreatedAt
+			};
+
+			return CreatedAtAction(nameof(GetCustomerById), new { id = createdCustomer.CustomerId }, response);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
+		public async Task<IActionResult> UpdateCustomer(int id, UpdateCustomerDto customerDto)
 		{
-			if (id != customer.CustomerId)
+			if (customerDto == null)
 			{
-				return BadRequest();
+				return BadRequest("Invalid client request");
 			}
 
 			var existingCustomer = await _customerRepository.GetCustomerByIdAsync(id);
@@ -72,7 +107,12 @@ namespace ECommerceStoreDB.Controller
 				return NotFound();
 			}
 
-			await _customerRepository.UpdateCustomerAsync(customer);
+			// Update only allowed fields
+			existingCustomer.Name = customerDto.Name;
+			existingCustomer.Email = customerDto.Email;
+			existingCustomer.Phone = customerDto.Phone;
+
+			await _customerRepository.UpdateCustomerAsync(existingCustomer);
 			return NoContent();
 		}
 

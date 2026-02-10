@@ -115,7 +115,7 @@ namespace ECommerceStoreDB.Repositories
 			}
 		}
 
-		public async Task DeleteCustomerAsync(int customerId)
+	public async Task DeleteCustomerAsync(int customerId)
 		{
 			using (var connection = new SqlConnection(_connectionString))
 			{
@@ -129,6 +129,8 @@ namespace ECommerceStoreDB.Repositories
 				}
 			}
 		}
+
+
 	}
 
 }

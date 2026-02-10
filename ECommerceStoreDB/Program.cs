@@ -18,6 +18,7 @@ builder.Services.AddControllers();
 //	return new CustomerRepository(connectionString);
 //});
 
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

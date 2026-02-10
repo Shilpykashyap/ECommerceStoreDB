@@ -9,6 +9,6 @@ namespace ECommerceStoreDB.IRepositories
 		Task<Customer> InsertCustomerAsync(Customer customer);
 		Task UpdateCustomerAsync(Customer customer);
 		Task DeleteCustomerAsync(int customerId);
-
 	}
+
 }
